@@ -37,6 +37,7 @@ void INISerializer::INISerializer::loadFromFile(std::string filename) {
     bool escaped = false;
     bool skip = false; // comments
     bool sec = false; // Are we in a section header?
+    bool secEnd = false; // Have we completed a section header in the same line?
     bool side = LEFT;
 
     std::string section;
@@ -65,7 +66,7 @@ void INISerializer::INISerializer::loadFromFile(std::string filename) {
                     break;
 
                 if(sec)
-                    errorHandler(ErrorCodes::MALFORMED_INI, "Found '[' in section identifier");
+                    errorHandler(ErrorCodes::MALFORMED_INI, "Found '[' in section identifier, you need to escape it with '\\['");
                 sec = true;
                 section = "";
                 break;
@@ -77,8 +78,9 @@ void INISerializer::INISerializer::loadFromFile(std::string filename) {
                     break;
 
                 if(!sec)
-                    errorHandler(ErrorCodes::MALFORMED_INI, "Found ']' without section");
+                    errorHandler(ErrorCodes::MALFORMED_INI, "Found ']' without section, you need to escape it with '\\]'");
                 sec = false;
+                secEnd = true;
                 break;
             case ';':
                 if(escaped)
@@ -96,6 +98,7 @@ void INISerializer::INISerializer::loadFromFile(std::string filename) {
 
                 ++line;
                 skip = false;
+                secEnd = false;
                 side = LEFT;
 
                 if(!sec && name != "" && value != "") {
@@ -145,6 +148,8 @@ void INISerializer::INISerializer::loadFromFile(std::string filename) {
                     break;
 
                 escaped = false;
+                if(secEnd)
+                    errorHandler(ErrorCodes::MALFORMED_INI, "Key on the same line as section");
 
                 if(sec)
                     section += c;

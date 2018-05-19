@@ -261,3 +261,18 @@ TEST(nestedPairTestD) {
 
     return true;
 }
+
+TEST(whitespaceTest) {
+    writeINI("test.ini", "[test]\npair= { { 1, 0.000000} , 3.141500    }\n");
+    INISerializer::INISerializer serializer;
+
+    std::pair<std::pair<int, double>, float> expected {{1, 0}, 3.1415};
+    std::pair<std::pair<int, double>, float> t;
+    serializer.registerVariable("test", "pair", t);
+
+    serializer.loadFromFile("test.ini");
+
+    ASSERT_EQU(t, expected, "Value does not match");
+
+    return true;
+}

@@ -2,7 +2,7 @@
 template<typename T, std::size_t Num>
 static bool deserializeArray(INISerializer *obj, const std::string &s, std::array<T, Num>* array) {
     if(s.length() < 2 || s.front() != '{' || s.back() != '}') {
-        obj->errorHandler(ErrorCodes::INVALID_VALUE, "Invalid value for std::tuple<" + getName<T>()() + "," + std::to_string(Num) + ">: '" + s + "'");
+        obj->errorHandler(ErrorCodes::INVALID_VALUE, "Invalid value for std::array<" + getName<T>()() + "," + std::to_string(Num) + ">: '" + s + "'");
     }
 
     constexpr int len = Num;

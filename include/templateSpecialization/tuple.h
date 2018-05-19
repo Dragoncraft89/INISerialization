@@ -4,7 +4,7 @@ inline std::enable_if_t<I == len-1, bool>
 tuple_deserialize_helper(INISerializer *obj, const std::string s, std::tuple<Args...>& t) {
     std::size_t pos = findDelimiterPos(obj, s, 1, s.length()-1);
     if(pos != std::string::npos) {
-        obj->errorHandler(ErrorCodes::INVALID_VALUE, "Too many values for std::tuple<" + getName<Args...>()() + ">: '" + s + "'");
+        obj->errorHandler(ErrorCodes::INVALID_VALUE, "Too many values for std::tuple<" + getName<Args...>()() + ">");
         return false;
     }
 
@@ -16,7 +16,7 @@ inline std::enable_if_t<I < len-1, bool>
 tuple_deserialize_helper(INISerializer *obj, const std::string s, std::tuple<Args...>& t) {
     std::size_t pos = findDelimiterPos(obj, s, 1, s.length()-1);
     if(pos == std::string::npos) {
-        obj->errorHandler(ErrorCodes::INVALID_VALUE, "Too few values for std::tuple<" + getName<Args...>()() + ">: '" + s + "'");
+        obj->errorHandler(ErrorCodes::INVALID_VALUE, "Too few values for std::tuple<" + getName<Args...>()() + ">");
         return false;
     }
 

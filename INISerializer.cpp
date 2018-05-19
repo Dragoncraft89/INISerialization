@@ -44,18 +44,24 @@ void INISerializer::INISerializer::loadFromFile(std::string filename) {
     std::string name;
     std::string value;
 
-    bool quotes = false;
+    bool doubleQuotes = false;
+    bool singleQuotes = false;
 
     char c;
     while(file >> std::noskipws >> c) {
         switch(c) {
             case '"':
-                quotes = !quotes;
+                if(!escaped && !singleQuotes)
+                    doubleQuotes = !doubleQuotes;
+                goto DEFAULT_CASE;
+            case '\'':
+                if(!escaped && !doubleQuotes)
+                    singleQuotes = !singleQuotes;
                 goto DEFAULT_CASE;
             case '\t':
             case '\r':
             case ' ':
-                if(quotes)
+                if(doubleQuotes || singleQuotes)
                     goto DEFAULT_CASE;
                 break; // ignore chars
             case '[':

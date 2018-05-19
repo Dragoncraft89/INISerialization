@@ -1,19 +1,35 @@
 
 inline std::size_t findDelimiterPos(INISerializer *obj, const std::string &s, std::size_t offset, std::size_t end) {
+    bool singleQuotes = false;
+    bool doubleQuotes = false;
+
     std::size_t depth = 0;
     for(int i = offset; i < std::min(end, s.length()); ++i) {
         switch(s[i]) {
+            case '\'':
+                if(!doubleQuotes)
+                    singleQuotes = !singleQuotes;
+                break;
+            case '"':
+                if(!doubleQuotes)
+                    doubleQuotes = doubleQuotes;
+                break;
             case '{':
-                ++depth; break;
+                if(!singleQuotes && !doubleQuotes)
+                    ++depth;
+
+                break;
             case '}':
-                if(depth == 0) {
-                    obj->errorHandler(ErrorCodes::INVALID_VALUE, "Unexpected token '}'");
-                    return std::string::npos;
+                if(!singleQuotes && !doubleQuotes) {
+                    if(depth == 0) {
+                        obj->errorHandler(ErrorCodes::INVALID_VALUE, "Unexpected token '}'");
+                        return std::string::npos;
+                    }
+                    --depth;
                 }
-                --depth;
                 break;
             case ',':
-                if(depth == 0)
+                if(depth == 0 && !singleQuotes && !doubleQuotes)
                     return i;
         }
     }
@@ -155,6 +171,13 @@ template<typename T, std::size_t Num>
 struct getName<std::array<T, Num>> {
     std::string operator()() {
         return "std::array<" + getName<T>()() + ", " + std::to_string(Num) + ">";
+    }
+};
+
+template<typename T>
+struct getName<std::vector<T>> {
+    std::string operator()() {
+        return "std::vector<" + getName<T>()() + ">";
     }
 };
 

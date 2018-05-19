@@ -3,7 +3,7 @@
 #include <fstream>
 #include "UnitTest++.h"
 
-void checkINI(std::string filename, std::string content) {
+static void checkINI(std::string filename, std::string content) {
     std::ifstream f(filename, std::ios_base::ate);
     ASSERT_TRUE(f.is_open(), "File not found!")
 
@@ -14,7 +14,8 @@ void checkINI(std::string filename, std::string content) {
     f.close();
 
     bool matches = strcmp(buff, content.data()) == 0;
-    ASSERT_TRUE(matches, "Content does not match, expected'" + content + "' got: '" + std::string(buff) + "'");
+    std::string s = "Content does not match, expected'" + content + "' got: '" + std::string(buff) + "'";
+    ASSERT_TRUE(matches, s);
 }
 
 TEST(intTest) {
@@ -93,11 +94,11 @@ TEST(ucharTest) {
     INISerializer::INISerializer serializer;
 
     unsigned char c = std::numeric_limits<unsigned char>::max();
-    serializer.registerVariable("test", "unsigned char", c);
+    serializer.registerVariable("test", "unsignedchar", c);
 
     serializer.saveToFile("test.ini");
 
-    checkINI("test.ini", "[test]\nunsigned char="+std::to_string(c)+"\n");
+    checkINI("test.ini", "[test]\nunsignedchar="+std::to_string(c)+"\n");
     return true;
 }
 
@@ -207,5 +208,41 @@ TEST(pairTest) {
     serializer.saveToFile("test.ini");
 
     checkINI("test.ini", "[test]\npair={1,3.141500}\n");
+    return true;
+}
+
+TEST(nestedTupleTest) {
+    INISerializer::INISerializer serializer;
+
+    std::tuple<std::tuple<int, char, unsigned int>, float, double, std::string> t {{1, -1, 255}, 0.0f, 3.1415, "test"};
+    serializer.registerVariable("test", "tuple", t);
+
+    serializer.saveToFile("test.ini");
+
+    checkINI("test.ini", "[test]\ntuple={{1,-1,255},0.000000,3.141500,test}\n");
+    return true;
+}
+
+TEST(nestedArrayTest) {
+    INISerializer::INISerializer serializer;
+
+    std::array<std::array<int, 2>, 3> t {1,1, 2,2, 3,3};
+    serializer.registerVariable("test", "array", t);
+
+    serializer.saveToFile("test.ini");
+
+    checkINI("test.ini", "[test]\narray={{1,1},{2,2},{3,3}}\n");
+    return true;
+}
+
+TEST(nestedPairTest) {
+    INISerializer::INISerializer serializer;
+
+    std::pair<std::pair<int, double>, float> t {{1, 0}, 3.1415};
+    serializer.registerVariable("test", "pair", t);
+
+    serializer.saveToFile("test.ini");
+
+    checkINI("test.ini", "[test]\npair={{1,0.000000},3.141500}\n");
     return true;
 }

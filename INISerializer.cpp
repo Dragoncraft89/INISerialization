@@ -91,6 +91,9 @@ void INISerializer::INISerializer::loadFromFile(std::string filename) {
                     continue;
                 }
 
+                if(name != "" && side == LEFT)
+                    errorHandler(ErrorCodes::MALFORMED_INI, "Found key without value: '" + name + "'");
+
                 ++line;
                 skip = false;
                 side = LEFT;
@@ -153,6 +156,9 @@ void INISerializer::INISerializer::loadFromFile(std::string filename) {
     if(sec)
         errorHandler(ErrorCodes::MALFORMED_INI, "Section tag still open on EOF");
 
+    if(name != "" && side == LEFT)
+        errorHandler(ErrorCodes::MALFORMED_INI, "Found key without value: '" + name + "'");
+
     if(!sec && name != "" && value != "")
         elements.push_back({section, name, value});
 
@@ -178,7 +184,7 @@ void INISerializer::INISerializer::saveToFile(std::string filename) {
 
     for(std::pair<const std::string, sectionEntry> &s: sections) {
         std::string section = s.first;
-        file << '\n' << '[' << section << ']' << '\n';
+        file << '[' << section << ']' << '\n';
         for(std::pair<const std::string, serializationFunctionLookup> &entry:s.second) {
             std::string name = entry.first;
 

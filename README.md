@@ -6,7 +6,7 @@ Examples:
 ```C++
 #include <INISerializer.h>
 void serialization() {
-  INISerializer s;
+  INISerializer::INISerializer s;
   
   std::tuple<int, float, std::string> tuple {1, 3.1415, "Hello, world!"};
   s.registerVariable("sectionName", "keyName", tuple);
@@ -15,7 +15,7 @@ void serialization() {
 }
 
 void deserialization() {
-  INISerializer s;
+  INISerializer::INISerializer s;
   
   std::tuple<int, float, std::string> tuple;
   s.registerVariable("sectionName", "keyName", tuple);

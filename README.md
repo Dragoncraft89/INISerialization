@@ -21,7 +21,7 @@ void deserialization() {
   s.registerVariable("sectionName", "keyName", tuple);
   
   s.loadFromFile("configuration.ini");
-  std::cout << "{" << std::get<0>(tuple) << ", " << std::get<1>(tuple) << ", " << std::get<2>(tuple) << "};
+  std::cout << "{" << std::get<0>(tuple) << ", " << std::get<1>(tuple) << ", " << std::get<2>(tuple) << "}";
 }
 
 int main(int argc, char *argv[]) {

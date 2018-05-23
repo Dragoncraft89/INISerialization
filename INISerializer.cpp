@@ -53,10 +53,14 @@ void INISerializer::INISerializer::loadFromFile(std::string filename) {
             case '"':
                 if(!escaped && !singleQuotes)
                     doubleQuotes = !doubleQuotes;
+                if(escaped && !sec)
+                    (side == LEFT?name:value) += '\\';
                 goto DEFAULT_CASE;
             case '\'':
                 if(!escaped && !doubleQuotes)
                     singleQuotes = !singleQuotes;
+                if(escaped && !sec)
+                    (side == LEFT?name:value) += '\\';
                 goto DEFAULT_CASE;
             case '\t':
             case '\r':

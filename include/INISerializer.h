@@ -38,6 +38,12 @@ namespace INISerializer {
     template <typename T, std::size_t Num>
     struct is_array<std::array<T, Num>>: std::true_type {};
 
+    template <typename>
+    struct is_vector: std::false_type {};
+
+    template <typename T>
+    struct is_vector<std::vector<T>>: std::true_type {};
+
     /** Compile time error assertion */
     template<bool b, typename T>
     struct assertMissingSpecialization{
@@ -64,6 +70,13 @@ namespace INISerializer {
 
     template<typename T, std::size_t Num>
     static std::string serializeArray(INISerializer *obj, const std::array<T, Num>* tuple);
+
+    template<typename T>
+    static bool deserializeVector(INISerializer *obj, const std::string &s, std::vector<T>* vector);
+
+    template<typename T>
+    static std::string serializeVector(INISerializer *obj, const std::vector<T>* tuple);
+
     /* default serialization / deserialization template, delegate to special functions or raise a compile error */
     template<typename T>
     static bool deserialize(INISerializer *obj, const std::string &s, T* ptr) {
@@ -73,6 +86,8 @@ namespace INISerializer {
             return deserializePair(obj, s, ptr);
         else if constexpr(is_array<T>::value)
             return deserializeArray(obj, s, ptr);
+        else if constexpr(is_vector<T>::value)
+            return deserializeVector(obj, s, ptr);
         else
           assertMissingSpecialization<false, T>(); // compile time error for missing specialization
     }
@@ -85,6 +100,8 @@ namespace INISerializer {
             return serializePair(obj, ptr);
         else if constexpr(is_array<T>::value)
             return serializeArray(obj, ptr);
+        else if constexpr(is_vector<T>::value)
+            return serializeVector(obj, ptr);
         else
             assertMissingSpecialization<false, T>(); // compile time error for missing specialization
     }

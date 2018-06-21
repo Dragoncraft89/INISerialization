@@ -16,6 +16,7 @@ TEST(MalformedINITests) {
         ERROR("\"[section=5\" parsed as valid INI");
         return false;
     } catch(std::runtime_error &e) {
+        printf("%s\n", e.what());
     }
 
     try {
@@ -25,6 +26,7 @@ TEST(MalformedINITests) {
         ERROR("\"[section]]\" parsed as valid INI");
         return false;
     } catch(std::runtime_error &e) {
+        printf("%s\n", e.what());
     }
 
     try {
@@ -36,6 +38,7 @@ TEST(MalformedINITests) {
         ERROR("\"[section]key\" parsed as valid INI");
         return false;
     } catch(std::runtime_error &e) {
+        printf("%s\n", e.what());
     }
 
     try {
@@ -47,6 +50,7 @@ TEST(MalformedINITests) {
         ERROR("\"[section]key=5\" parsed as valid INI");
         return false;
     } catch(std::runtime_error &e) {
+        printf("%s\n", e.what());
     }
 
     try {
@@ -58,6 +62,7 @@ TEST(MalformedINITests) {
         ERROR("\"[section]\nkey\" parsed as valid INI");
         return false;
     } catch(std::runtime_error &e) {
+        printf("%s\n", e.what());
     }
 
     return true;
@@ -73,6 +78,7 @@ TEST(missingEntryTest) {
         ERROR("Deserialization of \"[section]\nkey=5\" completed without error");
         return false;
     } catch(std::runtime_error &e) {
+        printf("%s\n", e.what());
     }
     return true;
 }
@@ -85,6 +91,7 @@ TEST(missingSectionTest) {
         ERROR("Deserialization of \"[section]\nkey=5\" completed without error");
         return false;
     } catch(std::runtime_error &e) {
+        printf("%s\n", e.what());
     }
     return true;
 }
@@ -99,6 +106,7 @@ TEST(malformedTupleTest) {
         ERROR("Deserialization with tuple value mismatch completed without error");
         return false;
     } catch(std::runtime_error &e) {
+        printf("%s\n", e.what());
     }
 
     try {
@@ -110,6 +118,7 @@ TEST(malformedTupleTest) {
         ERROR("Deserialization with unbalanced curly brackets completed without error");
         return false;
     } catch(std::runtime_error &e) {
+        printf("%s\n", e.what());
     }
 
     return true;
@@ -125,6 +134,7 @@ TEST(malformedPairTest) {
         ERROR("Deserialization with pair value mismatch completed without error");
         return false;
     } catch(std::runtime_error &e) {
+        printf("%s\n", e.what());
     }
 
     try {
@@ -136,6 +146,7 @@ TEST(malformedPairTest) {
         ERROR("Deserialization with unbalanced curly brackets completed without error");
         return false;
     } catch(std::runtime_error &e) {
+        printf("%s\n", e.what());
     }
 
     return true;
@@ -151,6 +162,7 @@ TEST(malformedArrayTest) {
         ERROR("Deserialization with array value mismatch completed without error");
         return false;
     } catch(std::runtime_error &e) {
+        printf("%s\n", e.what());
     }
 
     try {
@@ -162,6 +174,7 @@ TEST(malformedArrayTest) {
         ERROR("Deserialization with array size mismatch completed without error");
         return false;
     } catch(std::runtime_error &e) {
+        printf("%s\n", e.what());
     }
 
     try {
@@ -173,6 +186,35 @@ TEST(malformedArrayTest) {
         ERROR("Deserialization with unbalanced curly brackets completed without error");
         return false;
     } catch(std::runtime_error &e) {
+        printf("%s\n", e.what());
+    }
+
+    return true;
+}
+
+TEST(malformedQuotesTest) {
+    try {
+        writeINI("test.ini", "[section]\nkey='{'1,2,3,4,5}");
+        INISerializer::INISerializer s;
+        std::array<int, 5> key;
+        s.registerVariable("section", "key", key);
+        s.loadFromFile("test.ini");
+        ERROR("Deserialization of '{' didn't fail");
+        return false;
+    } catch(std::runtime_error &e) {
+        printf("%s\n", e.what());
+    }
+
+    try {
+        writeINI("test.ini", "[section]\nkey={'1,2,3,4,5}");
+        INISerializer::INISerializer s;
+        std::array<float, 5> key;
+        s.registerVariable("section", "key", key);
+        s.loadFromFile("test.ini");
+        ERROR("Deserialization of non-closed ' did not fail");
+        return false;
+    } catch(std::runtime_error &e) {
+        printf("%s\n", e.what());
     }
 
     return true;

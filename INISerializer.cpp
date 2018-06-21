@@ -28,7 +28,6 @@ void INISerializer::INISerializer::loadFromFile(std::string filename) {
         INISerializer::saveToFile(filename);
 
     constexpr bool LEFT = false; // Left side of section entry
-    constexpr bool RIGHT = true;
 
     std::vector<std::tuple<std::string, std::string, std::string>> elements; // {section, key, value}
 
@@ -44,18 +43,28 @@ void INISerializer::INISerializer::loadFromFile(std::string filename) {
     std::string name;
     std::string value;
 
-    bool quotes = false;
+    bool doubleQuotes = false;
+    bool singleQuotes = false;
 
     char c;
     while(file >> std::noskipws >> c) {
         switch(c) {
             case '"':
-                quotes = !quotes;
+                if(!escaped && !singleQuotes)
+                    doubleQuotes = !doubleQuotes;
+                if(escaped && !sec)
+                    (side == LEFT?name:value) += '\\';
+                goto DEFAULT_CASE;
+            case '\'':
+                if(!escaped && !doubleQuotes)
+                    singleQuotes = !singleQuotes;
+                if(escaped && !sec)
+                    (side == LEFT?name:value) += '\\';
                 goto DEFAULT_CASE;
             case '\t':
             case '\r':
             case ' ':
-                if(quotes)
+                if(doubleQuotes || singleQuotes)
                     goto DEFAULT_CASE;
                 break; // ignore chars
             case '[':

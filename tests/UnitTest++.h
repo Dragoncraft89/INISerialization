@@ -28,14 +28,22 @@ struct is_array: std::false_type {};
 template <typename T, std::size_t Num>
 struct is_array<std::array<T, Num>>: std::true_type {};
 
+template <typename>
+struct is_vector: std::false_type {};
+
+template <typename T>
+struct is_vector<std::vector<T>>: std::true_type {};
+
 template<typename> struct isStringLiteral: std::false_type {};
 template<std::size_t len> struct isStringLiteral<char[len]>: std::true_type {};
 template<std::size_t len> struct isStringLiteral<const char[len]>: std::true_type {};
 
 template<typename... Args>
-static std::string tuple_as_string(std::tuple<Args...> &tuple);
+inline std::string tuple_as_string(std::tuple<Args...> &tuple);
 template<typename T, std::size_t Num>
-static std::string array_as_string(std::array<T, Num> &array);
+inline std::string array_as_string(std::array<T, Num> &array);
+template<typename T>
+inline std::string vector_as_string(std::vector<T> &vector);
 
 template<typename T>
 inline std::string as_string(T &t) {
@@ -48,6 +56,8 @@ inline std::string as_string(T &t) {
     } else if constexpr(isStringLiteral<T>::value) {
         const char *c = t;
         return as_string<const char*>(c);
+    } else if constexpr(is_vector<T>::value) {
+        return "{" + vector_as_string(t) + "}";
     } else {
         return std::to_string(t);
     }
@@ -88,7 +98,7 @@ tuple_as_string_helper(std::tuple<Tp...>& t)
 }
 
 template<typename... Args>
-static std::string tuple_as_string(std::tuple<Args...> &tuple) {
+inline std::string tuple_as_string(std::tuple<Args...> &tuple) {
     constexpr size_t len = std::tuple_size<std::tuple<Args...>>::value;
 
     std::string s = "{" + tuple_as_string_helper<0, len, Args...>(tuple) + "}";
@@ -97,12 +107,12 @@ static std::string tuple_as_string(std::tuple<Args...> &tuple) {
 }
 
 template<>
-std::string tuple_as_string<>(std::tuple<> &tuple) {
+inline std::string tuple_as_string<>(std::tuple<> &tuple) {
     return "{}";
 }
 
 template<typename T, std::size_t Num>
-static std::string array_as_string(std::array<T, Num> &array) {
+inline std::string array_as_string(std::array<T, Num> &array) {
     constexpr int len = std::tuple_size<std::array<T, Num>>::value;
 
     std::string s;
@@ -113,6 +123,24 @@ static std::string array_as_string(std::array<T, Num> &array) {
 
     if(len != 0) {
         T value = array[len-1];
+        s += as_string<T>(value);
+    }
+
+    return s;
+}
+
+template<typename T>
+inline std::string vector_as_string(std::vector<T> &vector) {
+    int len = vector.size();
+
+    std::string s;
+    for(int i = 0; i < len - 1; ++i) {
+        T value = vector[i];
+        s += as_string<T>(value) + ",";
+    }
+
+    if(len != 0) {
+        T value = vector[len-1];
         s += as_string<T>(value);
     }
 

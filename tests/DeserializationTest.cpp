@@ -81,7 +81,7 @@ TEST(uintTestD) {
     serializer.registerVariable("test", "uint", i);
 
     serializer.loadFromFile("test.ini");
-    ASSERT_EQU(i, 15, "Value does not match");
+    ASSERT_EQU(i, 15u, "Value does not match");
 
     return true;
 }
@@ -120,7 +120,7 @@ TEST(ulongTestD) {
     serializer.registerVariable("test", "ulong", i);
 
     serializer.loadFromFile("test.ini");
-    ASSERT_EQU(i, 15, "Value does not match");
+    ASSERT_EQU(i, 15u, "Value does not match");
 
     return true;
 }
@@ -133,7 +133,7 @@ TEST(ulonglongTestD) {
     serializer.registerVariable("test", "ulonglong", i);
 
     serializer.loadFromFile("test.ini");
-    ASSERT_EQU(i, 15, "Value does not match");
+    ASSERT_EQU(i, 15u, "Value does not match");
 
     return true;
 }
@@ -182,7 +182,7 @@ TEST(tupleTestD) {
     writeINI("test.ini", "[test]\ntuple={1,0.000000,3.141500,test}\n");
     INISerializer::INISerializer serializer;
 
-    std::tuple<int, float, double, std::string> t {-1, -1, -1, ""};
+    std::tuple<int, float, double, std::string> t;
     std::tuple<int, float, double, std::string> expected{1, 0, 3.1415, "test"};
     serializer.registerVariable("test", "tuple", t);
 
@@ -196,7 +196,7 @@ TEST(arrayTestD) {
     writeINI("test.ini", "[test]\narray={1,2,3}\n");
     INISerializer::INISerializer serializer;
 
-    std::array<int, 3> t {0, 0, 0};
+    std::array<int, 3> t;
     std::array<int, 3> expected {1, 2, 3};
     serializer.registerVariable("test", "array", t);
 
@@ -210,7 +210,7 @@ TEST(pairTestD) {
     writeINI("test.ini", "[test]\npair={1,3.141500}\n");
     INISerializer::INISerializer serializer;
 
-    std::pair<int, float> t {1, 3.1415};
+    std::pair<int, float> t;
     std::pair<int, float> expected{1, 3.1415};
     serializer.registerVariable("test", "pair", t);
 
@@ -219,6 +219,21 @@ TEST(pairTestD) {
 
     return true;
 }
+
+TEST(vectorTestD) {
+    writeINI("test.ini", "[test]\nvector={1,2,3,4}\n");
+    INISerializer::INISerializer serializer;
+
+    std::vector<int> t;
+    std::vector<int> expected{1, 2, 3, 4};
+    serializer.registerVariable("test", "vector", t);
+
+    serializer.loadFromFile("test.ini");
+    ASSERT_EQU(t, expected, "Value does not match");
+
+    return true;
+}
+
 TEST(nestedTupleTestD) {
     writeINI("test.ini", "[test]\ntuple={{1,-1,255},0.000000,3.141500,test}\n");
     INISerializer::INISerializer serializer;
@@ -257,6 +272,65 @@ TEST(nestedPairTestD) {
 
     serializer.loadFromFile("test.ini");
 
+    ASSERT_EQU(t, expected, "Value does not match");
+
+    return true;
+}
+
+TEST(whitespaceTest) {
+    writeINI("test.ini", "[test]\npair= { { 1, 0.000000} , 3.141500    }\ntuple= { 0, { 1.0, 3 } , \"t est\" }\narray= { { 0, 1, 2 } }\nvector= { { 0, 1, 2 } }");
+    INISerializer::INISerializer serializer;
+
+    std::pair<std::pair<int, double>, float> expectedPair {{1, 0}, 3.1415};
+    std::pair<std::pair<int, double>, float> tPair;
+
+    std::tuple<int, std::tuple<double, int>, std::string> expectedTuple {0, {1, 3}, "t est"};
+    std::tuple<int, std::tuple<double, int>, std::string> tTuple;
+
+    std::array<std::array<int, 3>, 1> expectedArray {0, 1, 2};
+    std::array<std::array<int, 3>, 1> tArray;
+
+    std::vector<std::vector<int>> expectedVector {{0, 1, 2}};
+    std::vector<std::vector<int>> tVector;
+
+    serializer.registerVariable("test", "pair", tPair);
+    serializer.registerVariable("test", "tuple", tTuple);
+    serializer.registerVariable("test", "array", tArray);
+    serializer.registerVariable("test", "vector", tVector);
+
+    serializer.loadFromFile("test.ini");
+
+    ASSERT_EQU(tPair, expectedPair, "Pair Value does not match");
+    ASSERT_EQU(tTuple, expectedTuple, "Tuple Value does not match");
+    ASSERT_EQU(tArray, expectedArray, "Array Value does not match");
+    ASSERT_EQU(tVector, expectedVector, "Vector Value does not match");
+
+    return true;
+}
+
+TEST(nestedvectorTestD) {
+    writeINI("test.ini", "[test]\nvector={{1,2},{3,4,5}}\n");
+    INISerializer::INISerializer serializer;
+
+    std::vector<std::vector<int>> t;
+    std::vector<std::vector<int>> expected{{1, 2}, {3, 4, 5}};
+    serializer.registerVariable("test", "vector", t);
+
+    serializer.loadFromFile("test.ini");
+    ASSERT_EQU(t, expected, "Value does not match");
+
+    return true;
+}
+
+TEST(quotesInStringLiteralTest) {
+    writeINI("test.ini", "[test]\nvector={\"abcd\\\",efg\"}\n");
+    INISerializer::INISerializer serializer;
+
+    std::vector<std::string> t;
+    std::vector<std::string> expected{"abcd\",efg"};
+    serializer.registerVariable("test", "vector", t);
+
+    serializer.loadFromFile("test.ini");
     ASSERT_EQU(t, expected, "Value does not match");
 
     return true;

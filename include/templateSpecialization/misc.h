@@ -50,7 +50,7 @@ bool deserialize<std::string>(INISerializer *obj, const std::string &s, std::str
 
 template<>
 std::string serialize<std::string>(INISerializer *obj, const std::string *ptr) {
-    for(int i = 0; i < ptr->length(); ++i) {
+    for(std::size_t i = 0; i < ptr->length(); ++i) {
         if(std::isspace((*ptr)[i]))
             return "\"" + (*ptr) + "\"";
     }

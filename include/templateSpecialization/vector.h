@@ -7,8 +7,8 @@ static bool deserializeVector(INISerializer *obj, const std::string &s, std::vec
 
     std::vector<T> result = *vector;
 
-    int last = 1;
-    int current;
+    std::size_t last = 1;
+    std::size_t current;
 
     while((current = findDelimiterPos(obj, s, last, s.length()-1)) != std::string::npos) {
         try {
@@ -42,10 +42,10 @@ static bool deserializeVector(INISerializer *obj, const std::string &s, std::vec
 
 template<typename T>
 static std::string serializeVector(INISerializer *obj, const std::vector<T> *vector) {
-    int len = vector->size();
+    std::size_t len = vector->size();
 
     std::string s = "{";
-    for(int i = 0; i < len - 1; ++i) {
+    for(std::size_t i = 0; i < len - 1; ++i) {
         T value = (*vector)[i];
         s += serialize<T>(obj, &value) + ",";
     }

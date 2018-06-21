@@ -6,8 +6,8 @@ static bool deserializePair(INISerializer *obj, const std::string &s, std::pair<
         return false;
     }
 
-    int start = 1;
-    int middle = findDelimiterPos(obj, s, start, s.length()-1);
+    std::size_t start = 1;
+    std::size_t middle = findDelimiterPos(obj, s, start, s.length()-1);
     if(middle == std::string::npos) {
         obj->errorHandler(ErrorCodes::INVALID_VALUE, "Too few values for std::pair<" + std::string(typeid(A).name()) + ", " + std::string(typeid(B).name()) + ">: '" + s + "'");
         return false;

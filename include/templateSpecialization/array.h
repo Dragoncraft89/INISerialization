@@ -5,14 +5,14 @@ static bool deserializeArray(INISerializer *obj, const std::string &s, std::arra
         obj->errorHandler(ErrorCodes::INVALID_VALUE, "Invalid value for std::array<" + getName<T>()() + "," + std::to_string(Num) + ">: '" + s + "'");
     }
 
-    constexpr int len = Num;
+    constexpr std::size_t len = Num;
 
     std::array<T, Num> result = *array;
 
-    int last = 1;
-    int current;
+    std::size_t last = 1;
+    std::size_t current;
 
-    int count = 0;
+    std::size_t count = 0;
     while((current = findDelimiterPos(obj, s, last, s.length()-1)) != std::string::npos) {
         if(count == len) {
             obj->errorHandler(ErrorCodes::INVALID_VALUE, "Too many values for std::array<" + getName<T>()() + "," + std::to_string(Num) + ">: '" + s + "'");
@@ -58,10 +58,10 @@ static bool deserializeArray(INISerializer *obj, const std::string &s, std::arra
 
 template<typename T, std::size_t Num>
 static std::string serializeArray(INISerializer *obj, const std::array<T, Num> *array) {
-    constexpr int len = std::tuple_size<std::array<T, Num>>::value;
+    constexpr std::size_t len = std::tuple_size<std::array<T, Num>>::value;
 
     std::string s = "{";
-    for(int i = 0; i < len - 1; ++i) {
+    for(std::size_t i = 0; i < len - 1; ++i) {
         T value = (*array)[i];
         s += serialize<T>(obj, &value) + ",";
     }

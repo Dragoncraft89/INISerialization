@@ -81,7 +81,7 @@ TEST(uintTestD) {
     serializer.registerVariable("test", "uint", i);
 
     serializer.loadFromFile("test.ini");
-    ASSERT_EQU(i, 15, "Value does not match");
+    ASSERT_EQU(i, 15u, "Value does not match");
 
     return true;
 }
@@ -120,7 +120,7 @@ TEST(ulongTestD) {
     serializer.registerVariable("test", "ulong", i);
 
     serializer.loadFromFile("test.ini");
-    ASSERT_EQU(i, 15, "Value does not match");
+    ASSERT_EQU(i, 15u, "Value does not match");
 
     return true;
 }
@@ -133,7 +133,7 @@ TEST(ulonglongTestD) {
     serializer.registerVariable("test", "ulonglong", i);
 
     serializer.loadFromFile("test.ini");
-    ASSERT_EQU(i, 15, "Value does not match");
+    ASSERT_EQU(i, 15u, "Value does not match");
 
     return true;
 }
@@ -314,6 +314,20 @@ TEST(nestedvectorTestD) {
 
     std::vector<std::vector<int>> t;
     std::vector<std::vector<int>> expected{{1, 2}, {3, 4, 5}};
+    serializer.registerVariable("test", "vector", t);
+
+    serializer.loadFromFile("test.ini");
+    ASSERT_EQU(t, expected, "Value does not match");
+
+    return true;
+}
+
+TEST(quotesInStringLiteralTest) {
+    writeINI("test.ini", "[test]\nvector={\"abcd\\\",efg\"}\n");
+    INISerializer::INISerializer serializer;
+
+    std::vector<std::string> t;
+    std::vector<std::string> expected{"abcd\",efg"};
     serializer.registerVariable("test", "vector", t);
 
     serializer.loadFromFile("test.ini");

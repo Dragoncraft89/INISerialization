@@ -28,7 +28,6 @@ void INISerializer::INISerializer::loadFromFile(std::string filename) {
         INISerializer::saveToFile(filename);
 
     constexpr bool LEFT = false; // Left side of section entry
-    constexpr bool RIGHT = true;
 
     std::vector<std::tuple<std::string, std::string, std::string>> elements; // {section, key, value}
 

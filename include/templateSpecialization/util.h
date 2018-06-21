@@ -5,7 +5,7 @@ inline std::size_t findDelimiterPos(INISerializer *obj, const std::string &s, st
 
     std::size_t depth = 0;
     char last = '\0';
-    for(int i = offset; i < std::min(end, s.length()); ++i) {
+    for(std::size_t i = offset; i < std::min(end, s.length()); ++i) {
         switch(s[i]) {
             case '\'':
                 if(last != '\\' && !doubleQuotes)
@@ -13,7 +13,7 @@ inline std::size_t findDelimiterPos(INISerializer *obj, const std::string &s, st
                 break;
             case '"':
                 if(last != '\\' && !singleQuotes)
-                    doubleQuotes = doubleQuotes;
+                    doubleQuotes = !doubleQuotes;
                 break;
             case '{':
                 if(!singleQuotes && !doubleQuotes)
